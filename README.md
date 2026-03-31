@@ -46,3 +46,4 @@ The frontend dashboard will be available at `http://localhost:3000`.
 7. Click **"RESET TO NORMAL"** to clear constraints and stabilize the vitals.
 
 Enjoy the live demo!
+# vitalwatch
