@@ -48,7 +48,7 @@ export function Dashboard() {
         setBannerAlert(null);
 
         try {
-            await fetch("http://localhost:8000/vitals/mode", {
+            await fetch("https://vitalwatch-production-ed1f.up.railway.app/vitals/mode", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ mode: newMode })
@@ -84,7 +84,7 @@ export function Dashboard() {
             Notification.requestPermission();
         }
 
-        fetch("http://localhost:8000/alerts/history")
+        fetch("https://vitalwatch-production-ed1f.up.railway.app/alerts/history")
             .then(res => res.json())
             .then((history: any[]) => {
                 if (Array.isArray(history)) {
@@ -104,7 +104,7 @@ export function Dashboard() {
         let reconnectTimeout: NodeJS.Timeout;
 
         const connect = () => {
-            eventSource = new EventSource("http://localhost:8000/vitals/stream");
+            eventSource = new EventSource("https://vitalwatch-production-ed1f.up.railway.app/vitals/stream");
 
             eventSource.onopen = () => {
                 setIsConnected(true);
@@ -147,7 +147,7 @@ export function Dashboard() {
                                     new Notification("🚨 CRITICAL ALERT", { body: bannerMsg });
                                 }
 
-                                fetch("http://localhost:8000/notifications/send", {
+                                fetch("https://vitalwatch-production-ed1f.up.railway.app/notifications/send", {
                                     method: "POST",
                                     headers: { 'Content-Type': 'application/json' },
                                     body: JSON.stringify({
@@ -184,13 +184,13 @@ export function Dashboard() {
     const handleTriggerAnomaly = async () => {
         setIsTriggerFlashing(true);
         setTimeout(() => setIsTriggerFlashing(false), 3000);
-        const res = await fetch("http://localhost:8000/vitals/trigger-anomaly", { method: "POST" });
+        const res = await fetch("https://vitalwatch-production-ed1f.up.railway.app/vitals/trigger-anomaly", { method: "POST" });
         if (!res.ok) throw new Error("Trigger failure");
     };
 
     const handleReset = async () => {
         try {
-            await fetch("http://localhost:8000/vitals/reset", { method: "POST" });
+            await fetch("https://vitalwatch-production-ed1f.up.railway.app/vitals/reset", { method: "POST" });
             setAlerts([]);
             setBannerAlert(null);
         } catch (err) {

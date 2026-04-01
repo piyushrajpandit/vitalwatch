@@ -23,7 +23,7 @@ export function AIBrainPanel() {
     useEffect(() => {
         const fetchDecision = async () => {
             try {
-                const res = await fetch("http://localhost:8000/agent/latest-decision");
+                const res = await fetch("https://vitalwatch-production-ed1f.up.railway.app/agent/latest-decision");
                 if (!res.ok) throw new Error("Backend offline");
                 const data = await res.json();
                 setState({

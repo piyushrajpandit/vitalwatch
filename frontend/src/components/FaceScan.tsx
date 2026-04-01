@@ -25,7 +25,7 @@ export function FaceScan({ onScanComplete }: FaceScanProps) {
         } else if (isScanning && progress >= 100) {
             // Complete
             setIsScanning(false);
-            fetch("http://localhost:8000/rppg/start")
+            fetch("https://vitalwatch-production-ed1f.up.railway.app/rppg/start")
                 .then(res => res.json())
                 .then(data => {
                     setResult(data.heart_rate);

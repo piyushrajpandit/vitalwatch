@@ -8,7 +8,7 @@ export function ScannerPanel({ currentHR }: { currentHR: number }) {
     useEffect(() => {
         const interval = setInterval(async () => {
             try {
-                const res = await fetch("http://localhost:8000/scanner/frame");
+                const res = await fetch("https://vitalwatch-production-ed1f.up.railway.app/scanner/frame");
                 const data = await res.json();
                 if (data.frame) {
                     setFrame(data.frame);
