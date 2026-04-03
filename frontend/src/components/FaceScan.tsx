@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { Camera, CheckCircle2 } from "lucide-react";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
 interface FaceScanProps {
     onScanComplete: (hr: number) => void;
 }
@@ -25,7 +27,7 @@ export function FaceScan({ onScanComplete }: FaceScanProps) {
         } else if (isScanning && progress >= 100) {
             // Complete
             setIsScanning(false);
-            fetch("http://localhost:8000/rppg/start")
+            fetch(`${API_URL}/rppg/start`)
                 .then(res => res.json())
                 .then(data => {
                     setResult(data.heart_rate);

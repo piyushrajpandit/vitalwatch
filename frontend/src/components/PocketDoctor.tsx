@@ -24,6 +24,8 @@ import { cn } from "@/lib/utils";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
 const DoctorMap = dynamic(() => import("./DoctorMap"), { ssr: false });
 
 /* ───── Types ───── */
@@ -98,7 +100,7 @@ export function PocketDoctor() {
     /* ── Fetch current vitals ── */
     const fetchVitals = useCallback(async () => {
         try {
-            const res = await fetch("http://localhost:8000/vitals/current");
+            const res = await fetch(`${API_URL}/vitals/current`);
             const data = await res.json();
             if (data.heart_rate !== null && data.heart_rate > 0) setHr(data.heart_rate);
             if (data.spo2 !== null && data.spo2 > 0) setSpo2(data.spo2);

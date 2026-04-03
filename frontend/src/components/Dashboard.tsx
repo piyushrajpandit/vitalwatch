@@ -9,7 +9,8 @@ import {
     Radio,
     ScanHeart,
     Heart,
-    X
+    X,
+    Menu
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PatientCard } from "./PatientCard";
@@ -21,6 +22,8 @@ import { NotificationBanner } from "./NotificationBanner";
 import { FaceScan } from "./FaceScan";
 import Link from "next/link";
 import dynamic from 'next/dynamic';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 const VitalsChart = dynamic(() => import('./VitalsChart').then(mod => mod.VitalsChart), { ssr: false });
 
@@ -45,6 +48,7 @@ export function Dashboard() {
     const [progress, setProgress] = useState(0);
     const [mode, setMode] = useState<"simulate" | "scanner">("simulate");
     const [showWhatsAppAlert, setShowWhatsAppAlert] = useState(false);
+    const [mobileNavOpen, setMobileNavOpen] = useState(false);
     const eventSourceRef = useRef<EventSource | null>(null);
 
     const handleModeSwitch = async (newMode: "simulate" | "scanner") => {
@@ -57,7 +61,7 @@ export function Dashboard() {
         setBannerAlert(null);
 
         try {
-            await fetch("http://localhost:8000/vitals/mode", {
+            await fetch(`${API_URL}/vitals/mode`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ mode: newMode })
@@ -86,7 +90,7 @@ export function Dashboard() {
 
         const connect = () => {
             if (eventSourceRef.current) eventSourceRef.current.close();
-            const es = new EventSource("http://localhost:8000/vitals/stream");
+            const es = new EventSource(`${API_URL}/vitals/stream`);
             eventSourceRef.current = es;
 
             es.onopen = () => setIsConnected(true);
@@ -170,16 +174,16 @@ export function Dashboard() {
             )}
 
             {/* Header */}
-            <header className="sticky top-0 z-50 glass border-b border-white/5 px-8 py-4 flex items-center justify-between">
-                <div className="flex items-center gap-10">
+            <header className="sticky top-0 z-50 glass border-b border-white/5 px-4 md:px-8 py-3 md:py-4 flex items-center justify-between">
+                <div className="flex items-center gap-3 md:gap-10">
                     <div className="flex items-center gap-3 relative group">
                         <div className="absolute -inset-2 bg-cyan-500 rounded-full blur-xl opacity-10 group-hover:opacity-20 transition-opacity" />
                         <div className="bg-gradient-to-br from-cyan-500 to-indigo-600 p-2 rounded-2xl shadow-xl border border-white/10">
-                            <Activity className="w-6 h-6 text-white" />
+                            <Activity className="w-5 h-5 md:w-6 md:h-6 text-white" />
                         </div>
                         <div>
-                            <h1 className="text-xl font-black text-white tracking-widest leading-none mb-1 uppercase">VitalWatch</h1>
-                            <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.4em]">AI Patient Platform</p>
+                            <h1 className="text-base md:text-xl font-black text-white tracking-widest leading-none mb-0.5 uppercase">VitalWatch</h1>
+                            <p className="text-[8px] md:text-[9px] font-black text-slate-500 uppercase tracking-[0.4em]">AI Patient Platform</p>
                         </div>
                     </div>
 
@@ -207,23 +211,33 @@ export function Dashboard() {
                     </nav>
                 </div>
 
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 md:gap-4">
                     <Link href="/pocket-doctor">
-                        <button className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-lg transition-all active:scale-95">
-                            <Stethoscope className="w-4 h-4" />
-                            Pocket Doctor
+                        <button className="flex items-center gap-2 px-3 md:px-6 py-2 md:py-2.5 bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white text-[9px] md:text-[10px] font-black uppercase tracking-widest rounded-xl shadow-lg transition-all active:scale-95">
+                            <Stethoscope className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                            <span className="hidden sm:inline">Pocket Doctor</span>
+                            <span className="sm:hidden">Doc</span>
                         </button>
                     </Link>
-                    <div className="h-8 w-px bg-white/10 mx-2" />
-                    <div className="flex items-center gap-2">
+                    <div className="h-8 w-px bg-white/10 mx-1 hidden md:block" />
+                    <div className="hidden md:flex items-center gap-2">
                         <div className="w-8 h-8 rounded-full bg-slate-800 border border-white/5 flex items-center justify-center">
                             <Bell className="w-4 h-4 text-slate-500" />
                         </div>
                     </div>
+                    {/* Mobile mode switcher */}
+                    <div className="flex md:hidden items-center gap-1 bg-white/5 p-1 rounded-xl border border-white/5">
+                        <button onClick={() => handleModeSwitch("simulate")} className={cn("p-1.5 rounded-lg transition-all", mode === "simulate" ? "bg-white" : "text-slate-500")}>
+                            <Radio className={cn("w-3.5 h-3.5", mode === "simulate" ? "text-black" : "")} />
+                        </button>
+                        <button onClick={() => handleModeSwitch("scanner")} className={cn("p-1.5 rounded-lg transition-all", mode === "scanner" ? "bg-white" : "text-slate-500")}>
+                            <ScanHeart className={cn("w-3.5 h-3.5", mode === "scanner" ? "text-black" : "")} />
+                        </button>
+                    </div>
                 </div>
             </header>
 
-            <main className="p-8 max-w-[1700px] mx-auto space-y-8 relative z-10">
+            <main className="p-4 md:p-8 max-w-[1700px] mx-auto space-y-6 md:space-y-8 relative z-10">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                     <div className="lg:col-span-8 space-y-8">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
@@ -250,9 +264,9 @@ export function Dashboard() {
                         </div>
 
                         <DemoControlPanel
-                            onTriggerAnomaly={() => { fetch("http://localhost:8000/vitals/trigger-anomaly", { method: "POST" }); }}
+                            onTriggerAnomaly={() => { fetch(`${API_URL}/vitals/trigger-anomaly`, { method: "POST" }); }}
                             onReset={() => {
-                                fetch("http://localhost:8000/vitals/reset", { method: "POST" });
+                                fetch(`${API_URL}/vitals/reset`, { method: "POST" });
                                 setAlerts([]);
                                 setBannerAlert(null);
                                 setShowWhatsAppAlert(false);

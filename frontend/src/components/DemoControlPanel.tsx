@@ -42,10 +42,10 @@ export function DemoControlPanel({ onTriggerAnomaly, onReset, isCritical }: Demo
         </div>
       )}
 
-      <div className="flex gap-4">
+      <div className="flex flex-col sm:flex-row gap-4">
         <button
           onClick={handleTrigger}
-          className="flex-1 bg-red-600 hover:bg-red-500 text-white font-extrabold py-5 px-6 rounded-2xl transition-all duration-300 min-w-[250px] text-base uppercase tracking-widest shadow-[0_0_30px_rgba(239,68,68,0.4)] hover:shadow-[0_0_50px_rgba(239,68,68,0.8)] flex items-center justify-center gap-3 animate-pulse-fast border-2 border-red-400"
+          className="w-full bg-red-600 hover:bg-red-500 text-white font-extrabold py-5 px-6 rounded-2xl transition-all duration-300 text-sm uppercase tracking-widest shadow-[0_0_30px_rgba(239,68,68,0.4)] hover:shadow-[0_0_50px_rgba(239,68,68,0.8)] flex items-center justify-center gap-3 animate-pulse-fast border-2 border-red-400"
         >
           <AlertTriangle className="w-6 h-6" />
           TRIGGER CRITICAL ANOMALY

@@ -3,6 +3,8 @@ import { Brain, Sparkles, Activity, ShieldAlert, Cpu, Zap, Search, Maximize2 } f
 import { cn } from "@/lib/utils";
 import Link from 'next/link';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
 interface AIDecision {
     risk_level: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
     clinical_reasoning: string;
@@ -22,7 +24,7 @@ export function AIBrainPanel() {
     useEffect(() => {
         const fetchDecision = async () => {
             try {
-                const res = await fetch("http://localhost:8000/agent/latest-decision");
+                const res = await fetch(`${API_URL}/agent/latest-decision`);
                 const data = await res.json();
 
                 // Diagnostic logging as requested
@@ -67,7 +69,7 @@ export function AIBrainPanel() {
                             <h3 className="text-xl font-black text-white tracking-tight leading-none mb-1">VitalWatch AI</h3>
                             <p className="text-slate-500 font-bold text-[10px] uppercase tracking-widest flex items-center gap-2">
                                 <span className={cn("w-1.5 h-1.5 rounded-full", isAnalyzing ? "bg-cyan-500 animate-ping" : "bg-emerald-500")} />
-                                {isAnalyzing ? "Analyzing Vitals..." : "Neural Engine Active"}
+                                {isAnalyzing ? "Analyzing..." : "Neural Engine Active"}
                             </p>
                         </div>
                     </div>

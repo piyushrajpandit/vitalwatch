@@ -5,6 +5,8 @@ import { Brain, Sparkles, Activity, ShieldAlert, Cpu, Zap, Heart, ArrowLeft, Loa
 import { cn } from "@/lib/utils";
 import Link from 'next/link';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
 interface AIDecision {
     risk_level: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
     clinical_reasoning: string;
@@ -24,7 +26,7 @@ export default function DiagnosticReportPage() {
     useEffect(() => {
         const fetchDecision = async () => {
             try {
-                const res = await fetch("http://localhost:8000/agent/latest-decision");
+                const res = await fetch(`${API_URL}/agent/latest-decision`);
                 const data = await res.json();
 
                 if (data.status === "ok" && data.decision) {

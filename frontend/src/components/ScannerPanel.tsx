@@ -4,13 +4,15 @@ import React, { useEffect, useState } from "react";
 import { Camera, Activity } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
 export function ScannerPanel({ currentHR }: { currentHR: number | null }) {
     const [frame, setFrame] = useState<string | null>(null);
 
     useEffect(() => {
         const interval = setInterval(async () => {
             try {
-                const res = await fetch("http://localhost:8000/scanner/frame");
+                const res = await fetch(`${API_URL}/scanner/frame`);
                 const data = await res.json();
                 if (data.frame) {
                     setFrame(data.frame);
