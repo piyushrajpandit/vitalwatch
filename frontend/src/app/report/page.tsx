@@ -86,7 +86,7 @@ export default function DiagnosticReportPage() {
                                         <h1 className="text-4xl md:text-5xl font-black text-white tracking-tighter">AI Diagnostic Report</h1>
                                     </div>
                                     <p className="text-slate-400 font-bold uppercase tracking-[0.3em] text-sm md:ml-[5.5rem]">
-                                        Generated at {new Date(decision.timestamp).toLocaleString()}
+                                        Generated at {decision?.timestamp ? new Date(decision.timestamp).toLocaleString() : "--"}
                                     </p>
                                 </div>
                             </div>
@@ -137,7 +137,7 @@ export default function DiagnosticReportPage() {
                                             Model Confidence
                                         </h4>
                                         <div className="text-white text-4xl font-black tracking-tighter">
-                                            {(decision.confidence_score * 100).toFixed(1)}%
+                                            {((decision?.confidence_score ?? 0) * 100).toFixed(1)}%
                                             <span className="text-sm text-slate-500 font-medium tracking-normal block mt-2 opacity-80">Precision mapping active</span>
                                         </div>
                                     </div>
