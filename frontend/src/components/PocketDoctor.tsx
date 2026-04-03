@@ -165,15 +165,22 @@ export function PocketDoctor() {
                     ],
                     temperature: 0.3,
                     max_tokens: 500,
+                    response_format: { type: "json_object" }
                 }),
             });
 
             const data = await res.json();
+
+            if (!res.ok) {
+                setAiError(`API Error: ${data.error?.message || res.statusText}`);
+                return;
+            }
+
             const raw = data.choices?.[0]?.message?.content || "";
             const parsed = parseAIResponse(raw);
 
             if (!parsed) {
-                setAiError("Could not analyze symptoms. Please describe them differently.");
+                setAiError("Could not analyze symptoms. Failed to parse AI response.");
                 return;
             }
 
@@ -476,6 +483,18 @@ export function PocketDoctor() {
                                 <div className="h-64 glass-dark rounded-[2.5rem] flex flex-col items-center justify-center border border-white/5">
                                     <MapPin className="w-8 h-8 text-cyan-500 animate-bounce mb-4" />
                                     <p className="text-xs font-black uppercase tracking-widest text-slate-500">Mapping Medical Facilities...</p>
+                                </div>
+                            ) : locationStatus === "denied" ? (
+                                <div className="h-64 glass-dark rounded-[2.5rem] flex flex-col items-center justify-center border border-white/5 p-6 text-center">
+                                    <MapPin className="w-8 h-8 text-red-500 mb-4 opacity-50" />
+                                    <p className="text-sm font-bold text-white mb-2">Location Access Needed</p>
+                                    <p className="text-xs text-slate-400">Please enable location permissions in your browser to discover route to nearest hospitals.</p>
+                                </div>
+                            ) : locationStatus === "done" && hospitals.length === 0 ? (
+                                <div className="h-64 glass-dark rounded-[2.5rem] flex flex-col items-center justify-center border border-white/5 p-6 text-center">
+                                    <MapPin className="w-8 h-8 text-orange-500 mb-4 opacity-50" />
+                                    <p className="text-sm font-bold text-white mb-2">No facilities found nearby</p>
+                                    <p className="text-xs text-slate-400">We could not locate relevant facilities within an 8km radius of your current location via the map network.</p>
                                 </div>
                             ) : hospitals.length > 0 && (
                                 <section className="space-y-6">

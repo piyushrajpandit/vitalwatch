@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Brain, Sparkles, Activity, ShieldAlert, Cpu, Zap, Search } from 'lucide-react';
+import { Brain, Sparkles, Activity, ShieldAlert, Cpu, Zap, Search, Maximize2 } from 'lucide-react';
 import { cn } from "@/lib/utils";
+import Link from 'next/link';
 
 interface AIDecision {
     risk_level: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
@@ -70,11 +71,18 @@ export function AIBrainPanel() {
                             </p>
                         </div>
                     </div>
+                    {decision && (
+                        <Link href="/report">
+                            <button className="p-2 bg-white/5 hover:bg-white/10 rounded-xl transition-all border border-white/5 group">
+                                <Maximize2 className="w-5 h-5 text-slate-400 group-hover:text-cyan-400" />
+                            </button>
+                        </Link>
+                    )}
                 </div>
 
-                <div className="flex-1 flex flex-col justify-center min-h-[300px]">
+                <div className="flex-1 flex flex-col justify-center min-h-[300px] overflow-hidden mt-4">
                     {decision ? (
-                        <div className="space-y-6 animate-slide-down">
+                        <div className="space-y-4 animate-slide-down overflow-y-auto custom-scrollbar pr-2 pb-2 max-h-[280px]">
                             {/* Risk Badge */}
                             <div className={cn(
                                 "inline-flex items-center gap-2 px-4 py-2 rounded-xl font-black text-[10px] uppercase tracking-[0.2em]",
@@ -90,11 +98,11 @@ export function AIBrainPanel() {
                             <div className="relative">
                                 <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-cyan-500 to-transparent rounded-full opacity-50" />
                                 <div className="pl-6">
-                                    <h4 className="text-slate-500 font-black text-[10px] uppercase tracking-widest mb-3 flex items-center gap-2">
+                                    <h4 className="text-slate-500 font-black text-[10px] uppercase tracking-widest mb-2 flex items-center gap-2">
                                         <Cpu className="w-3 h-3" />
                                         Clinical Reasoning
                                     </h4>
-                                    <p className="text-white font-bold text-lg leading-relaxed italic">
+                                    <p className="text-white font-bold text-sm leading-relaxed italic opacity-90">
                                         "{decision.clinical_reasoning}"
                                     </p>
                                 </div>
@@ -154,6 +162,7 @@ export function AIBrainPanel() {
                     </div>
                 </div>
             </div>
+
         </div>
     );
 }

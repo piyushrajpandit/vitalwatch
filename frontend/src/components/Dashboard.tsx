@@ -272,7 +272,7 @@ export function Dashboard() {
                 </div>
             </main>
 
-            <div className="fixed bottom-8 right-8 z-[100] flex flex-col items-end gap-4 w-full sm:w-[420px] pointer-events-none">
+            <div className="fixed bottom-8 left-8 z-[100] flex flex-col items-start gap-4 w-full sm:w-[420px] pointer-events-none">
                 <NotificationBanner alert={bannerAlert} onClose={() => setBannerAlert(null)} />
                 {showWhatsAppAlert && (
                     <div className="w-[calc(100%-64px)] sm:w-full bg-[#25D366] text-white p-6 rounded-[2rem] shadow-2xl border border-white/20 animate-slide-right pointer-events-auto flex items-center gap-5 relative overflow-hidden group">
