@@ -1,78 +1,96 @@
+import { User, Activity, Droplets, Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { User, MapPin, Heart, Activity } from "lucide-react";
 
-interface PatientCardProps {
-    status: "normal" | "warning" | "critical";
-    isFlashing: boolean;
-    hr: number;
-    spo2: number;
-}
-
-export function PatientCard({ status, isFlashing, hr, spo2 }: PatientCardProps) {
-    const statusColors = {
-        normal: "bg-clinical-normal text-white shadow-[0_0_15px_rgba(16,185,129,0.4)]",
-        warning: "bg-clinical-warning text-slate-900 shadow-[0_0_15px_rgba(245,158,11,0.4)]",
-        critical: "bg-clinical-critical text-white shadow-[0_0_20px_rgba(239,68,68,0.6)]"
-    };
+export function PatientCard({ status, isFlashing, hr, spo2 }: { status: string, isFlashing: boolean, hr: number | null, spo2: number | null }) {
+    const isCritical = status === "critical";
+    const isWarning = status === "warning";
 
     return (
         <div className={cn(
-            "p-6 rounded-2xl bg-clinical-card border-2 transition-colors duration-300 flex flex-col justify-between h-full min-h-[220px]",
-            status === "critical" && isFlashing ? "border-clinical-critical" : "border-clinical-border"
+            "relative overflow-hidden rounded-[2.5rem] p-8 transition-all duration-700 h-full",
+            "glass-dark border-2",
+            isCritical ? "border-red-500/50 shadow-[0_0_50px_rgba(239,68,68,0.2)] animate-pulse-glow" :
+                isWarning ? "border-amber-500/50 shadow-[0_0_50px_rgba(245,158,11,0.1)]" :
+                    "border-slate-800/50 hover:border-slate-700/50"
         )}>
-            <div className="flex items-start justify-between">
-                <div className="flex gap-4 items-center">
-                    <div className="w-16 h-16 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center relative overflow-hidden group">
-                        <User className="w-8 h-8 text-slate-400 group-hover:scale-110 transition-transform" />
-                    </div>
-                    <div>
-                        <h2 className="text-2xl font-bold tracking-tight text-white">John Mitchell</h2>
-                        <div className="flex items-center gap-2 text-slate-400 mt-1">
-                            <span className="font-medium text-slate-300">Age 72</span>
-                            <span>•</span>
-                            <MapPin className="w-4 h-4 text-clinical-normal" />
-                            <span>Independent</span>
+            {/* Background Glow */}
+            <div className={cn(
+                "absolute -top-24 -right-24 w-64 h-64 rounded-full blur-[100px] transition-all duration-1000 opacity-50",
+                isCritical ? "bg-red-500/20" : isWarning ? "bg-amber-500/10" : "bg-cyan-500/10"
+            )} />
+
+            <div className="relative z-10">
+                <div className="flex items-center justify-between mb-10">
+                    <div className="flex items-center gap-5">
+                        <div className="relative">
+                            <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center border border-white/10 shadow-2xl">
+                                <User className="w-10 h-10 text-slate-400" />
+                            </div>
+                            <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-emerald-500 border-4 border-[#070C18] animate-pulse shadow-lg" />
+                        </div>
+                        <div>
+                            <h3 className="text-2xl font-black text-white tracking-tight leading-none mb-2">John Mitchell</h3>
+                            <div className="flex items-center gap-2">
+                                <span className="text-slate-500 font-bold text-xs uppercase tracking-widest px-2 py-0.5 rounded bg-white/5 border border-white/5">Age 72</span>
+                                <span className="text-slate-500 font-bold text-xs uppercase tracking-widest px-2 py-0.5 rounded bg-white/5 border border-white/5">Male</span>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div className={cn(
-                    "px-4 py-2 rounded-full font-bold uppercase tracking-wider text-sm transition-colors duration-500 flex items-center gap-2",
-                    statusColors[status],
-                    status === "critical" ? "animate-pulse" : ""
-                )}>
-                    {status === 'critical' ? <Activity className="w-4 h-4" /> : null}
-                    {status}
-                </div>
-            </div>
 
-            {/* Real-Time Vitals Display */}
-            <div className="mt-8 flex items-end justify-between border-t border-slate-800/60 pt-6">
-                <div>
-                    <div className="flex items-center gap-2 mb-2">
-                        <Heart className={cn("w-5 h-5", status !== 'normal' ? "text-clinical-critical animate-pulse-fast" : "text-clinical-normal")} />
-                        <p className="text-slate-400 text-sm font-semibold uppercase tracking-wider">Heart Rate</p>
-                    </div>
-                    <div className="flex items-baseline gap-2">
-                        <span className={cn(
-                            "text-6xl font-black tabular-nums tracking-tighter transition-colors duration-300",
-                            status === "critical" ? "text-clinical-critical" : status === "warning" ? "text-clinical-warning" : "text-white"
-                        )}>
-                            {hr > 0 ? hr.toFixed(0) : "--"}
-                        </span>
-                        <span className="text-slate-500 font-bold text-xl">BPM</span>
+                    <div className={cn(
+                        "px-5 py-2.5 rounded-2xl font-black text-[11px] uppercase tracking-[0.25em] transition-all duration-500 border flex items-center gap-3",
+                        isCritical ? "bg-red-500 text-white border-red-400 animate-breathe shadow-[0_10px_20px_rgba(239,68,68,0.4)]" :
+                            isWarning ? "bg-amber-500/20 text-amber-500 border-amber-500/30 animate-breathe" :
+                                "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
+                    )}>
+                        <span className={cn("w-2.5 h-2.5 rounded-full", isCritical ? "bg-white animate-ping" : isWarning ? "bg-amber-500" : "bg-emerald-500")} />
+                        {status || "Normal"}
                     </div>
                 </div>
 
-                <div className="text-right">
-                    <p className="text-slate-400 text-sm font-semibold uppercase tracking-wider mb-2">SpO2</p>
-                    <div className="flex items-baseline gap-2 justify-end">
-                        <span className={cn(
-                            "text-4xl font-bold tabular-nums tracking-tight transition-colors duration-300",
-                            status === "critical" || spo2 < 92 ? "text-clinical-critical" : status === "warning" ? "text-clinical-warning" : "text-slate-200"
-                        )}>
-                            {spo2 > 0 ? spo2.toFixed(1) : "--"}
-                        </span>
-                        <span className="text-slate-500 font-bold text-lg">%</span>
+                <div className="grid grid-cols-2 gap-8">
+                    {/* Heart Rate */}
+                    <div className="bg-white/[0.03] rounded-3xl p-8 border border-white/5 hover:bg-white/[0.06] transition-all duration-500 group relative">
+                        <div className="absolute top-4 right-4 text-slate-800 group-hover:text-red-500/20 transition-colors">
+                            <Activity className="w-12 h-12" />
+                        </div>
+                        <div className="flex items-center gap-3 mb-6 relative">
+                            <div className={cn(
+                                "p-2.5 rounded-xl transition-all duration-500",
+                                isCritical ? "bg-red-500/20 text-red-500 shadow-[0_0_15px_rgba(239,68,68,0.3)]" : "bg-slate-800 text-slate-400"
+                            )}>
+                                <Heart className={cn("w-6 h-6", (hr && hr > 0) ? "animate-heartbeat fill-current" : "")} />
+                            </div>
+                            <span className="text-slate-400 font-bold text-xs uppercase tracking-widest">Heart Rate</span>
+                        </div>
+                        <div className="flex items-baseline gap-2">
+                            <span className={cn(
+                                "text-4xl font-black tracking-tighter number-transition",
+                                isCritical ? "text-red-500 text-glow" : "text-white"
+                            )}>
+                                {hr || "--"}
+                            </span>
+                            <span className="text-slate-500 font-black text-sm tracking-widest uppercase">BPM</span>
+                        </div>
+                    </div>
+
+                    {/* SpO2 */}
+                    <div className="bg-white/[0.03] rounded-3xl p-8 border border-white/5 hover:bg-white/[0.06] transition-all duration-500 group relative">
+                        <div className="absolute top-4 right-4 text-slate-800 group-hover:text-cyan-500/20 transition-colors">
+                            <Droplets className="w-12 h-12" />
+                        </div>
+                        <div className="flex items-center gap-3 mb-6 relative">
+                            <div className="p-2.5 rounded-xl bg-slate-800 text-slate-400 group-hover:text-cyan-400 group-hover:bg-cyan-500/10 transition-all duration-500">
+                                <Droplets className="w-6 h-6" />
+                            </div>
+                            <span className="text-slate-400 font-bold text-xs uppercase tracking-widest">Blood Oxygen</span>
+                        </div>
+                        <div className="flex items-baseline gap-2">
+                            <span className="text-4xl font-black text-white tracking-tighter number-transition">
+                                {spo2 || "--"}
+                            </span>
+                            <span className="text-slate-500 font-black text-sm tracking-widest uppercase">%</span>
+                        </div>
                     </div>
                 </div>
             </div>

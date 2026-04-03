@@ -2,6 +2,58 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  body {
+    @apply bg-navy-900 text-slate-200 antialiased selection:bg-cyan-500/30;
+    background-image:
+      radial-gradient(circle at 50% 0%, rgba(34, 211, 238, 0.05) 0%, transparent 50%),
+      linear-gradient(rgba(17, 24, 39, 0.5) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(17, 24, 39, 0.5) 1px, transparent 1px);
+    background-size: 100% 100%, 40px 40px, 40px 40px;
+    background-attachment: fixed;
+  }
+}
+
+@layer components {
+  .glass {
+    @apply backdrop-blur-md bg-white/5 border border-white/10;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  }
+
+  .glass-dark {
+    @apply backdrop-blur-xl bg-slate-900/40 border border-slate-800/50;
+  }
+
+  .text-glow {
+    text-shadow: 0 0 15px rgba(34, 211, 238, 0.5);
+  }
+
+  .border-glow-critical {
+    @apply border-red-500/50;
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+  }
+}
+
+/* Smooth number transitions */
+.number-transition {
+  font-variant-numeric: tabular-nums;
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes grid-move {
+  0% {
+    background-position: 0 0;
+  }
+
+  100% {
+    background-position: 40px 40px;
+  }
+}
+
+.animate-grid {
+  animation: grid-move 20s linear infinite;
+}
+
 :root {
   --background: #050B14;
   --foreground: #F8FAFC;

@@ -12,17 +12,17 @@ export function NotificationBanner({ alert, onClose }: { alert: { message: strin
     if (!alert) return null;
 
     return (
-        <div className="fixed top-0 left-0 right-0 z-50 bg-clinical-critical text-white px-6 py-5 shadow-2xl flex items-center justify-between animate-slide-down border-b-4 border-red-800">
-            <div className="flex items-center gap-6 max-w-[1600px] mx-auto w-full">
-                <div className="bg-white/20 p-3 rounded-full shadow-inner animate-pulse">
-                    <AlertTriangle className="w-8 h-8" />
+        <div className="w-full bg-[#dc2626] text-white p-4 rounded-2xl shadow-[0_20px_50px_rgba(220,38,38,0.3)] border border-white/20 animate-slide-right pointer-events-auto">
+            <div className="flex items-start gap-4">
+                <div className="bg-white/20 p-2 rounded-xl shrink-0">
+                    <AlertTriangle className="w-6 h-6" />
                 </div>
-                <div className="flex-1">
-                    <h4 className="font-extrabold text-2xl tracking-wide mb-1 shadow-sm">{alert.title || "CRITICAL HEALTH ALERT"}</h4>
-                    <p className="text-red-50 font-semibold text-xl tracking-tight leading-snug">{alert.message}</p>
+                <div className="flex-1 min-w-0">
+                    <h4 className="font-black text-sm uppercase tracking-wider mb-1">{alert.title || "CRITICAL ALERT"}</h4>
+                    <p className="text-white/90 font-bold text-sm leading-tight">{alert.message}</p>
                 </div>
-                <button onClick={onClose} className="p-3 bg-red-800 hover:bg-white/20 rounded-full transition-colors border border-red-500 shadow-md">
-                    <X className="w-8 h-8" />
+                <button onClick={onClose} className="p-1 hover:bg-white/10 rounded-lg transition-colors shrink-0">
+                    <X className="w-5 h-5" />
                 </button>
             </div>
         </div>

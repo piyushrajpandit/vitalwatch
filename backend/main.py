@@ -15,11 +15,26 @@ load_dotenv()
 
 import numpy as np
 from sklearn.ensemble import IsolationForest
+from twilio.rest import Client
 
 import firebase_admin
 from firebase_admin import credentials, messaging
 
 app = FastAPI(title="VitalWatch Backend")
+
+# Twilio Configuration
+TWILIO_SID = os.getenv("TWILIO_ACCOUNT_SID")
+TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
+TWILIO_FROM = "whatsapp:+14155238886"
+TWILIO_TO = "whatsapp:+918092597282"
+
+twilio_client = None
+if TWILIO_SID and TWILIO_AUTH_TOKEN:
+    try:
+        twilio_client = Client(TWILIO_SID, TWILIO_AUTH_TOKEN)
+        print("Twilio client initialized.")
+    except Exception as e:
+        print(f"Failed to initialize Twilio: {e}")
 
 firebase_cred_path = os.getenv("FIREBASE_CREDENTIALS_PATH")
 if firebase_cred_path and os.path.exists(firebase_cred_path):
@@ -41,6 +56,32 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+async def send_whatsapp_alert(vitals: dict):
+    """Send WhatsApp alert via Twilio."""
+    if not twilio_client:
+        print("Twilio client not initialized. Skipping WhatsApp alert.")
+        return
+
+    hr = vitals.get("heart_rate")
+    spo2 = vitals.get("spo2")
+    message_body = (
+        f"⚠️ CRITICAL ALERT: John Mitchell (Age 72) cardiac anomaly detected. "
+        f"Heart rate: {hr} BPM. SpO2: {spo2}%. Immediate attention required. - VitalWatch AI"
+    )
+
+    try:
+        # Run in a thread pool to avoid blocking the async event loop if the library is synchronous
+        # or use the async client if available. Twilio's standard Client is synchronous.
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(None, lambda: twilio_client.messages.create(
+            from_=TWILIO_FROM,
+            body=message_body,
+            to=TWILIO_TO
+        ))
+        print(f"WhatsApp alert sent successfully to {TWILIO_TO}")
+    except Exception as e:
+        print(f"Failed to send WhatsApp alert: {e}")
+
 class VitalsState:
     def __init__(self):
         self.mode = "simulate"  # "simulate" or "scanner"
@@ -50,6 +91,7 @@ class VitalsState:
         self.external_hr = None
         self.last_agent_decision = None
         self.is_analyzing = False
+        self.whatsapp_alert_sent = False
         
         # Train Isolation Forest on normal baseline data
         # Normal data: HR 60-80, SpO2 95-99
@@ -66,28 +108,29 @@ class VitalsState:
         
         if self.mode == "scanner":
             # COMPLETELY KILL SIMULATION
-            hr = self.external_hr if self.external_hr is not None else 0
-            spo2 = 98.0
+            hr = self.external_hr # This will be None if no reading
+            spo2 = 98.0 if hr is not None else None
             movement = 0
             
             anomaly_status = "normal"
-            if 40 < hr < 200:
+            if hr is not None and 40 < hr < 200:
                 if hr > 130 or spo2 < 90:
                     anomaly_status = "critical"
                 elif hr > 100 or hr < 55:
                     anomaly_status = "warning"
             else:
-                anomaly_status = "none" if hr == 0 else "normal"
+                anomaly_status = "none" if hr is None or hr == 0 else "normal"
                 
             severity = 0.8 if anomaly_status == "critical" else (0.5 if anomaly_status == "warning" else 0.0)
             
             return {
-                "heart_rate": round(hr, 1),
-                "spo2": round(spo2, 1),
+                "heart_rate": round(hr, 1) if hr is not None else None,
+                "spo2": round(spo2, 1) if spo2 is not None else None,
                 "movement": movement,
                 "timestamp": now,
                 "anomaly_status": anomaly_status,
-                "severity_score": severity
+                "severity_score": severity,
+                "whatsapp_alert_sent": self.whatsapp_alert_sent
             }
         else:
             # Simulate mode: Strict isolation completely ignoring external_hr
@@ -131,7 +174,8 @@ class VitalsState:
             "movement": movement,
             "timestamp": now,
             "anomaly_status": anomaly_status,
-            "severity_score": round(severity_score, 2)
+            "severity_score": round(severity_score, 2),
+            "whatsapp_alert_sent": self.whatsapp_alert_sent
         }
 
 state = VitalsState()
@@ -151,6 +195,12 @@ async def health_check():
     """Health check endpoint."""
     return {"status": "ok"}
 
+@app.get("/vitals/current")
+async def vitals_current():
+    """Return current vitals snapshot for Pocket Doctor."""
+    vitals = state.get_vitals()
+    return vitals
+
 from agent import analyze_vitals
 from db import save_alert, get_recent_alerts
 
@@ -167,9 +217,9 @@ async def trigger_agent_analysis(vitals: dict):
                 timestamp=decision["timestamp"],
                 heart_rate=vitals.get("heart_rate", 0),
                 spo2=vitals.get("spo2", 0),
-                severity=decision.get("risk_level", "warning"),
-                reasoning=decision.get("reasoning", ""),
-                action=decision.get("action", "")
+                severity=decision.get("risk_level", "HIGH"),
+                reasoning=decision.get("clinical_reasoning", ""),
+                action=decision.get("immediate_action", "")
             )
     except Exception as e:
         print("Agent error:", e)
@@ -184,17 +234,48 @@ async def get_latest_decision():
         "is_analyzing": state.is_analyzing
     }
 
+@app.get("/test-groq")
+async def test_groq():
+    """Test endpoint to verify Groq AI connectivity."""
+    from agent import client
+    if not client:
+        return {"status": "error", "message": "Groq client not initialized. Check GROQ_API_KEY in .env."}
+    
+    try:
+        print("\n[TEST] Testing Groq Cardiologist AI connection...")
+        
+        # Use sync client logic in thread as in agent.py
+        loop = asyncio.get_event_loop()
+        def call_groq():
+            return client.chat.completions.create(
+                model="llama-3.1-8b-instant",
+                messages=[{"role": "user", "content": "Hello cardiologist. Verify connection."}],
+                max_tokens=20
+            )
+            
+        response = await loop.run_in_executor(None, call_groq)
+        msg = response.choices[0].message.content
+        print(f"[TEST] Groq Response: {msg}")
+        return {"status": "success", "response": msg, "model": "llama-3.1-8b-instant"}
+    except Exception as e:
+        import traceback
+        err_msg = str(e)
+        print(f"[TEST] Groq Test Failed: {err_msg}")
+        return {
+            "status": "error", 
+            "message": err_msg, 
+            "traceback": traceback.format_exc()
+        }
+
 @app.get("/vitals/stream")
 async def vitals_stream():
     """SSE endpoint for streaming real-time vitals."""
     async def event_generator():
         counter = 0
         while True:
-            # Every 30-40 seconds automatically inject anomaly spike
+            # Every 30-40 seconds automatically inject anomaly spike (ONLY IN SIMULATE MODE)
             counter += 1
-            if not state.trigger_anomaly and counter >= random.randint(30, 40):
-                # We could set a short automatic spike here, but to give the user control
-                # We'll just generate the initial trigger and let it revert after 5s
+            if state.mode == "simulate" and not state.trigger_anomaly and counter >= random.randint(30, 40):
                 original = state.trigger_anomaly
                 state.trigger_anomaly = True
                 
@@ -209,10 +290,23 @@ async def vitals_stream():
 
             vitals = state.get_vitals()
             
-            # Strict validation: Only trigger agent if the HR reading is mathematically valid
-            hr_valid = 40 < vitals["heart_rate"] < 200
-            if vitals["anomaly_status"] in ["warning", "critical"] and hr_valid and not state.is_analyzing:
+            # Anomaly Detection & Alerting Logic
+            status = vitals.get("anomaly_status")
+            
+            # 1. Trigger AI Agent Reasoning
+            hr_val = vitals.get("heart_rate")
+            hr_valid = hr_val is not None and 40 < hr_val < 200
+            if status in ["warning", "critical"] and hr_valid and not state.is_analyzing:
                 asyncio.create_task(trigger_agent_analysis(vitals))
+
+            # 2. Trigger Twilio WhatsApp Alert (Wait for Critical)
+            if status == "critical" and not state.whatsapp_alert_sent:
+                state.whatsapp_alert_sent = True
+                asyncio.create_task(send_whatsapp_alert(vitals))
+            
+            # 3. Reset Alert Flag when returning to normal
+            if status == "normal":
+                state.whatsapp_alert_sent = False
                 
             yield json.dumps(vitals)
             await asyncio.sleep(1)
