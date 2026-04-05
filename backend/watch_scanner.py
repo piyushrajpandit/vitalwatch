@@ -6,8 +6,10 @@ import re
 import base64
 import threading
 
-API_URL = "http://localhost:8000/vitals/external-input"
-FRAME_URL = "http://localhost:8000/scanner/frame/upload"
+import os
+BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
+API_URL = f"{BACKEND_URL}/vitals/external-input"
+FRAME_URL = f"{BACKEND_URL}/scanner/frame/upload"
 
 def extract_valid_bpm(text):
     matches = re.findall(r'\d+', text)

@@ -48,9 +48,13 @@ else:
     print("Firebase credentials not found (.env). Push Notifications will be logged to console.")
 
 # Allow CORS for Next.js frontend
+allowed_origins = ["http://localhost:3000", "http://127.0.0.1:3000", "http://0.0.0.0:3000", "https://vitalwatch-mauve.vercel.app"]
+if os.getenv("FRONTEND_URL"):
+    allowed_origins.append(os.getenv("FRONTEND_URL"))
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000", "http://0.0.0.0:3000", "https://vitalwatch-mauve.vercel.app"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

@@ -535,7 +535,7 @@ export function PocketDoctor() {
                                                 <div className="flex justify-between items-start mb-4">
                                                     <h4 className="font-black text-white text-sm tracking-tight leading-none group-hover:text-cyan-400 transition-colors">{h.name}</h4>
                                                     <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest bg-black/20 px-2.5 py-1 rounded-lg border border-white/5 shadow-inner">
-                                                        {h.distance.toFixed(1)} km
+                                                        {(Number(h.distance) || 0).toFixed(1)} km
                                                     </span>
                                                 </div>
                                                 <div className="flex items-center justify-between">
@@ -552,7 +552,7 @@ export function PocketDoctor() {
                                                 <div className="flex-1">
                                                     <h4 className="text-sm font-black text-white mb-1 leading-none">{selectedHospital.name}</h4>
                                                     <div className="flex items-center gap-4">
-                                                        <span className="text-[10px] font-black text-cyan-400 uppercase tracking-widest">{routeInfo.distance.toFixed(1)} km Away</span>
+                                                        <span className="text-[10px] font-black text-cyan-400 uppercase tracking-widest">{(Number(routeInfo.distance) || 0).toFixed(1)} km Away</span>
                                                         <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">•</span>
                                                         <span className="text-[10px] font-black text-white uppercase tracking-widest">{Math.ceil(routeInfo.duration)} Mins Drive</span>
                                                     </div>

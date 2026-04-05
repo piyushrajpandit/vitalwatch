@@ -124,7 +124,7 @@ export function AIBrainPanel() {
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <Sparkles className="w-4 h-4 text-cyan-400" />
-                                    <span className="text-slate-500 font-black text-[9px] uppercase tracking-widest">Confidence Score: {((decision?.confidence_score ?? 0) * 100).toFixed(0)}%</span>
+                                    <span className="text-slate-500 font-black text-[9px] uppercase tracking-widest">Confidence Score: {(Number(decision?.confidence_score ?? 0) * 100).toFixed(0)}%</span>
                                 </div>
                                 <div className="text-slate-600 font-mono text-[9px] uppercase tracking-widest text-right">
                                     Processed at {decision?.timestamp ? new Date(decision.timestamp).toLocaleTimeString() : "--"}

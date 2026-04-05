@@ -137,7 +137,7 @@ export default function DiagnosticReportPage() {
                                             Model Confidence
                                         </h4>
                                         <div className="text-white text-4xl font-black tracking-tighter">
-                                            {((decision?.confidence_score ?? 0) * 100).toFixed(1)}%
+                                            {(Number(decision?.confidence_score ?? 0) * 100).toFixed(1)}%
                                             <span className="text-sm text-slate-500 font-medium tracking-normal block mt-2 opacity-80">Precision mapping active</span>
                                         </div>
                                     </div>

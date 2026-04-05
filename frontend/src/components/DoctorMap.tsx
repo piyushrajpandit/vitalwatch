@@ -90,7 +90,7 @@ export default function DoctorMap({ userLat, userLng, hospitals, selectedHospita
                 .bindPopup(`
                     <div style="font-family:sans-serif;min-width:140px">
                         <b style="font-size:13px">${h.name}</b><br/>
-                        <span style="font-size:11px;color:#888">${h.distance.toFixed(1)} km away</span><br/>
+                        <span style="font-size:11px;color:#888">${(Number(h.distance) || 0).toFixed(1)} km away</span><br/>
                         <button onclick="window.__selectHospital(${h.id})" style="margin-top:6px;padding:4px 12px;background:#3b82f6;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:11px;font-weight:bold">Select</button>
                     </div>
                 `);
